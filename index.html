@@ -1,29 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Credential Parser</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
   <div class="container">
     <h1>Credential Parser</h1>
-    <p>Upload a text file containing credentials in the format `username:password` and we'll extract them.</p>
-
-    <div class="upload-section">
-      <input type="file" id="fileInput" accept=".txt" />
-      <button onclick="processFile()">Process File</button>
-    </div>
-
-    <div id="fileInfo" class="file-info"></div>
-
-    <h2>Extracted Credentials:</h2>
-    <textarea id="credentialsOutput" rows="10" cols="50" readonly></textarea>
-
+    <input type="file" id="fileInput" accept=".txt" />
+    <button onclick="processFile()">Parse & Save</button>
+    <div id="status"></div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
