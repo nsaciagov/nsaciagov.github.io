@@ -1,462 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credential Parser</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 700px; 
-            margin: 0 auto; 
-            padding: 20px;
-            background: #f8fafc;
-            color: #334155;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 16px;
-        }
-        h1 { 
-            text-align: center; 
-            margin: 0 0 8px 0;
-            color: #1e293b;
-        }
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-        .upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 32px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .upload-area:hover, .upload-area.dragover {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-        input[type="file"] { display: none; }
-        .btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .btn:hover { background: #2563eb; }
-        .btn:disabled { 
-            background: #94a3b8; 
-            cursor: not-allowed; 
-        }
-        .btn-success { background: #10b981; }
-        .btn-success:hover { background: #059669; }
-        .btn-danger { background: #ef4444; }
-        .btn-danger:hover { background: #dc2626; }
-        .search-section {
-            background: #f1f5f9;
-            padding: 16px;
-            border-radius: 8px;
-            margin: 16px 0;
-        }
-        .search-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        .checkbox-row {
-            display: flex;
-            gap: 16px;
-            font-size: 14px;
-        }
-        .checkbox-row label {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #10b981);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin: 16px 0;
-        }
-        .stat {
-            text-align: center;
-            padding: 8px;
-            background: #f8fafc;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-        .stat strong {
-            display: block;
-            font-size: 16px;
-            color: #1e293b;
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 12px;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
-            resize: vertical;
-        }
-        .hidden { display: none; }
-        .text-sm { font-size: 14px; color: #64748b; }
-        .mb-2 { margin-bottom: 8px; }
-        .flex { display: flex; gap: 8px; align-items: center; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TXT File Merger</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    input[type="file"] {
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 800px;
+      height: 400px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #444;
+      padding: 1rem;
+      font-family: monospace;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Credential Parser</h1>
-        <div class="subtitle">Extract clean username:password from URL:username:password format</div>
-        
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-            <div>📁 Drop file here or click to select</div>
-            <div class="text-sm">Supports large files (up to 1GB+)</div>
-            <input type="file" id="fileInput" accept=".txt,.log,.csv,*">
-        </div>
-    </div>
+  <h1>TXT File Merger</h1>
+  <input type="file" id="fileInput" multiple accept=".txt" />
+  <textarea id="output" placeholder="Merged content will appear here..."></textarea>
+  <button onclick="downloadMerged()">Download .txt</button>
 
-    <div id="fileInfo" class="card hidden">
-        <div class="mb-2"><strong>File:</strong> <span id="fileName"></span></div>
-        <div class="text-sm mb-2" id="fileSize"></div>
-        
-        <div class="search-section">
-            <div class="text-sm mb-2">Filter lines (optional):</div>
-            <input type="text" id="searchTerm" class="search-input" placeholder="Search term...">
-            <div class="checkbox-row">
-                <label><input type="checkbox" id="caseSensitive"> Case sensitive</label>
-                <label><input type="checkbox" id="wholeWord"> Whole words only</label>
-            </div>
-        </div>
-        
-        <button class="btn btn-success" id="processBtn" onclick="processFile()">Process File</button>
-    </div>
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
 
-    <div id="progressSection" class="card hidden">
-        <div class="flex">
-            <strong>Processing...</strong>
-            <button class="btn btn-danger" onclick="cancelProcessing()">Cancel</button>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="text-sm" id="progressText">Starting...</div>
-    </div>
+    fileInput.addEventListener('change', async () => {
+      const files = Array.from(fileInput.files).sort((a, b) => a.name.localeCompare(b.name));
+      let mergedText = '';
 
-    <div id="results" class="card hidden">
-        <div class="stats">
-            <div class="stat">
-                <strong id="originalCount">0</strong>
-                <div>Original</div>
-            </div>
-            <div class="stat">
-                <strong id="filteredCount">0</strong>
-                <div>Filtered</div>
-            </div>
-            <div class="stat">
-                <strong id="finalCount">0</strong>
-                <div>Final</div>
-            </div>
-        </div>
-        
-        <textarea id="output" readonly placeholder="Processed content will appear here..."></textarea>
-        <div style="margin-top: 12px;">
-            <button class="btn" onclick="copyToClipboard()">📋 Copy All</button>
-            <button class="btn" onclick="downloadResult()">💾 Download</button>
-        </div>
-    </div>
+      for (const file of files) {
+        const text = await file.text();
+        mergedText += text + '\n';
+      }
 
-    <script>
-        let file_content = '';
-        let processed_content = '';
-        let original_file_name = '';
-        let processing_cancelled = false;
-        let file_size = 0;
-        let start_time = 0;
-        let bytes_processed = 0;
-        let lines_processed = 0;
+      output.value = mergedText.trim();
+    });
 
-        document.getElementById('fileInput').addEventListener('change', e => {
-            if (e.target.files[0]) read_file(e.target.files[0]);
-        });
-
-        const upload_area = document.getElementById('uploadArea');
-        upload_area.addEventListener('dragover', e => {
-            e.preventDefault();
-            upload_area.classList.add('dragover');
-        });
-        upload_area.addEventListener('dragleave', e => {
-            e.preventDefault();
-            upload_area.classList.remove('dragover');
-        });
-        upload_area.addEventListener('drop', e => {
-            e.preventDefault();
-            upload_area.classList.remove('dragover');
-            if (e.dataTransfer.files[0]) read_file(e.dataTransfer.files[0]);
-        });
-
-        function read_file(file) {
-            original_file_name = file.name;
-            file_size = file.size;
-            const size_mb = (file_size / (1024 * 1024)).toFixed(1);
-            
-            document.getElementById('fileName').textContent = original_file_name;
-            document.getElementById('fileSize').textContent = `Size: ${size_mb} MB`;
-            document.getElementById('fileInfo').classList.remove('hidden');
-            document.getElementById('results').classList.add('hidden');
-            
-            const process_btn = document.getElementById('processBtn');
-            process_btn.disabled = true;
-            process_btn.textContent = 'Loading...';
-            
-            const reader = new FileReader();
-            reader.onload = e => {
-                file_content = e.target.result;
-                process_btn.disabled = false;
-                process_btn.textContent = 'Process File';
-            };
-            reader.onerror = () => {
-                alert('Error reading file');
-                process_btn.disabled = false;
-                process_btn.textContent = 'Process File';
-            };
-            reader.readAsText(file);
-        }
-
-        async function process_file_data(content, search_term, case_sensitive, whole_word) {
-            const lines = content.split('\n');
-            const total_lines = lines.length;
-            const total_bytes = content.length;
-            
-            const batch_size = Math.max(50000, Math.floor(total_lines / 100));
-            const processed = [];
-            const seen = new Set();
-            
-            start_time = Date.now();
-            bytes_processed = 0;
-            lines_processed = 0;
-            
-            let search_regex = null;
-            if (search_term && whole_word) {
-                const flags = case_sensitive ? 'g' : 'gi';
-                const escaped_term = search_term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                search_regex = new RegExp('\\b' + escaped_term + '\\b', flags);
-            }
-
-            for (let i = 0; i < total_lines; i += batch_size) {
-                if (processing_cancelled) return null;
-                
-                const batch_end = Math.min(i + batch_size, total_lines);
-                const batch = lines.slice(i, batch_end);
-                
-                for (let j = 0; j < batch.length; j++) {
-                    const line = batch[j];
-                    if (!line.trim()) continue;
-                    
-                    if (search_term) {
-                        if (whole_word && search_regex) {
-                            if (!search_regex.test(line)) continue;
-                        } else {
-                            const test_line = case_sensitive ? line : line.toLowerCase();
-                            const test_term = case_sensitive ? search_term : search_term.toLowerCase();
-                            if (!test_line.includes(test_term)) continue;
-                        }
-                    }
-                    
-                    let processed_line = '';
-                    
-                    if (line.includes('android://') && line.includes('@com.roblox.client/')) {
-                        const client_part = line.split('@com.roblox.client/')[1];
-                        if (client_part && client_part.startsWith(':')) {
-                            const creds = client_part.substring(1);
-                            const parts = creds.split(':');
-                            if (parts.length >= 2) {
-                                const username = parts[0];
-                                const password = parts.slice(1).join(':');
-                                processed_line = `${username}:${password}`;
-                            }
-                        }
-                    } else if (line.includes('android://') && line.includes('@') && line.includes('.client/')) {
-                        const client_split = line.split('.client/');
-                        if (client_split.length > 1) {
-                            const after_client = client_split[1];
-                            if (after_client.startsWith(':')) {
-                                const creds = after_client.substring(1);
-                                const parts = creds.split(':');
-                                if (parts.length >= 2) {
-                                    const username = parts[0];
-                                    const password = parts.slice(1).join(':');
-                                    processed_line = `${username}:${password}`;
-                                }
-                            }
-                        }
-                    } else if (line.includes('://')) {
-                        const parts = line.split(':');
-                        if (parts.length >= 3) {
-                            const username = parts[parts.length - 2];
-                            const password = parts[parts.length - 1];
-                            processed_line = `${username}:${password}`;
-                        } else {
-                            processed_line = line;
-                        }
-                    } else {
-                        const colon_count = (line.match(/:/g) || []).length;
-                        if (colon_count === 1) {
-                            processed_line = line;
-                        } else if (colon_count >= 2) {
-                            const parts = line.split(':');
-                            const username = parts[parts.length - 2];
-                            const password = parts[parts.length - 1];
-                            processed_line = `${username}:${password}`;
-                        } else {
-                            processed_line = line;
-                        }
-                    }
-                    
-                    if (processed_line.trim() && !seen.has(processed_line)) {
-                        seen.add(processed_line);
-                        processed.push(processed_line);
-                    }
-                    
-                    bytes_processed += line.length + 1;
-                    lines_processed++;
-                }
-                
-                const current_time = Date.now();
-                const elapsed = (current_time - start_time) / 1000;
-                const percent = Math.round((batch_end / total_lines) * 100);
-                
-                if (elapsed > 0) {
-                    const mb_per_sec = (bytes_processed / (1024 * 1024)) / elapsed;
-                    const lines_per_sec = lines_processed / elapsed;
-                    const bytes_remaining = total_bytes - bytes_processed;
-                    const time_remaining = ((bytes_remaining / (1024 * 1024)) / mb_per_sec) || 0;
-                    
-                    const time_str = time_remaining < 60 ? 
-                        `${time_remaining.toFixed(1)}s` : 
-                        `${Math.floor(time_remaining / 60)}m ${(time_remaining % 60).toFixed(0)}s`;
-                    
-                    document.getElementById('progressFill').style.width = percent + '%';
-                    const progress_el = document.getElementById('progressText');
-                    progress_el.innerHTML = 'Processing: ' + batch_end.toLocaleString() + ' / ' + total_lines.toLocaleString() + ' lines (' + percent + '%)<br>' +
-                        '<small>Speed: ' + mb_per_sec.toFixed(1) + ' MB/s • ' + Math.round(lines_per_sec).toLocaleString() + ' lines/s • ' + time_str + ' remaining</small>';
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 1));
-            }
-            
-            return {
-                result: processed.join('\n'),
-                stats: {
-                    original: total_lines,
-                    filtered: processed.length,
-                    final: processed.length
-                }
-            };
-        }
-
-        async function processFile() {
-            if (!file_content) {
-                alert('Please select a file first');
-                return;
-            }
-
-            const search_term = document.getElementById('searchTerm').value.trim();
-            const case_sensitive = document.getElementById('caseSensitive').checked;
-            const whole_word = document.getElementById('wholeWord').checked;
-
-            document.getElementById('progressSection').classList.remove('hidden');
-            document.getElementById('processBtn').disabled = true;
-            processing_cancelled = false;
-
-            try {
-                const result = await process_file_data(file_content, search_term, case_sensitive, whole_word);
-                
-                if (result && !processing_cancelled) {
-                    processed_content = result.result;
-                    document.getElementById('originalCount').textContent = result.stats.original.toLocaleString();
-                    document.getElementById('filteredCount').textContent = result.stats.filtered.toLocaleString();
-                    document.getElementById('finalCount').textContent = result.stats.final.toLocaleString();
-                    document.getElementById('output').value = result.result;
-                    document.getElementById('results').classList.remove('hidden');
-                }
-            } catch (error) {
-                alert('Processing error: ' + error.message);
-            }
-            
-            hide_progress();
-        }
-
-        function cancelProcessing() {
-            processing_cancelled = true;
-            hide_progress();
-        }
-
-        function hide_progress() {
-            document.getElementById('progressSection').classList.add('hidden');
-            document.getElementById('processBtn').disabled = false;
-            document.getElementById('progressFill').style.width = '0%';
-        }
-
-        function copyToClipboard() {
-            if (!processed_content) {
-                alert('No content to copy');
-                return;
-            }
-            navigator.clipboard.writeText(processed_content).then(() => {
-                alert('Copied to clipboard!');
-            }).catch(() => {
-                document.getElementById('output').select();
-                document.execCommand('copy');
-                alert('Copied to clipboard!');
-            });
-        }
-
-        function downloadResult() {
-            if (!processed_content) {
-                alert('No content to download');
-                return;
-            }
-            const blob = new Blob([processed_content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = original_file_name.replace(/\.[^/.]+$/, '') + '_processed.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-    </script>
+    function downloadMerged() {
+      const blob = new Blob([output.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'merged.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
 </body>
 </html>
