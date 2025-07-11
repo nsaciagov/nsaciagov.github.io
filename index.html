@@ -9,11 +9,12 @@
       font-family: Arial, sans-serif;
       background: #111;
       color: #eee;
-      margin: 0;
-      padding: 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
 
     h1 {
@@ -24,20 +25,7 @@
       margin-bottom: 1rem;
     }
 
-    textarea {
-      width: 100%;
-      max-width: 800px;
-      height: 400px;
-      background: #222;
-      color: #0f0;
-      border: 1px solid #444;
-      padding: 1rem;
-      font-family: monospace;
-      resize: vertical;
-    }
-
     button {
-      margin-top: 1rem;
       padding: 0.5rem 1rem;
       font-size: 1rem;
       cursor: pointer;
@@ -49,36 +37,33 @@
   </style>
 </head>
 <body>
-  <h1>TXT File Merger</h1>
+  <h1>Merge .txt Files</h1>
   <input type="file" id="fileInput" multiple accept=".txt" />
-  <textarea id="output" placeholder="Merged content will appear here..."></textarea>
-  <button onclick="downloadMerged()">Download .txt</button>
+  <button onclick="mergeAndDownload()">Merge & Download</button>
 
   <script>
-    const fileInput = document.getElementById('fileInput');
-    const output = document.getElementById('output');
+    async function mergeAndDownload() {
+      const input = document.getElementById('fileInput');
+      const files = Array.from(input.files).sort((a, b) => a.name.localeCompare(b.name));
 
-    fileInput.addEventListener('change', async () => {
-      const files = Array.from(fileInput.files).sort((a, b) => a.name.localeCompare(b.name));
-      let mergedText = '';
+      if (files.length === 0) {
+        alert('Please select at least one .txt file.');
+        return;
+      }
+
+      let contents = '';
 
       for (const file of files) {
         const text = await file.text();
-        mergedText += text + '\n';
+        contents += text + '\n';
       }
 
-      output.value = mergedText.trim();
-    });
-
-    function downloadMerged() {
-      const blob = new Blob([output.value], { type: 'text/plain' });
+      const blob = new Blob([contents.trim()], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'merged.txt';
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
   </script>
